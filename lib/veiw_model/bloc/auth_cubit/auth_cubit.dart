@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do_app/model/user.dart';
-import 'package:to_do_app/model/user_register.dart';
 import 'package:to_do_app/veiw_model/bloc/auth_cubit/auth_state.dart';
 import 'package:to_do_app/veiw_model/data/local/cash_helper.dart';
 import 'package:to_do_app/veiw_model/data/local/local_keys.dart';
@@ -50,7 +49,7 @@ class AuthCubit extends Cubit<AuthState> {
       throw error;
     });
   }
-  UserRegister? userRegist;
+
   Future<void> userRegister() async {
     emit(RegisterLoadingState());
     await DioHelper.postData(
@@ -62,11 +61,11 @@ class AuthCubit extends Cubit<AuthState> {
       },
     ).then((value) {
       print(value.data);
-      userRegist =UserRegister.fromJson(value.data['user']);
-      print(userRegist?.name);
-      showToast(message: 'Welcome ${userRegist?.name ?? ''}');
-      CashHelper.put(key: LocalKeys.tokenRegister, value: value.data['authorisation']['token']);
-      CashHelper.put(key: LocalKeys.userNameRegister, value: user?.name);
+      user =User.fromJson(value.data['user']);
+      print(user?.name);
+      showToast(message: 'Welcome ${user?.name ?? ''}');
+      CashHelper.put(key: LocalKeys.token, value: value.data['authorisation']['token']);
+      CashHelper.put(key: LocalKeys.userName, value: user?.name);
       emit(RegisterSuccessState());
     }).catchError((error){
       print(error.toString());
