@@ -34,13 +34,18 @@ class LoginScreen extends StatelessWidget {
                       Row(
                         children: [
                           Image.asset(AppAssets.logoIcon, height: 90.h),
-                          TextButton(onPressed: (){
-                            Navigation.push(context, RegisterScreen());
-                          }, child: TextCustom(
-                           text:  'Don\'t have account',
-                            color: Colors.black,
-                            fontSize: 15,
-                          ))
+                          Column(
+                            children: [
+                              const TextCustom(text: 'Don\'t have an account?',fontSize: 14),
+                              TextButton(onPressed: (){
+                                Navigation.push(context, RegisterScreen());
+                              }, child: Text(
+                                 'Register',
+                                style: TextStyle(decoration: TextDecoration.underline,
+                               color: Colors.black ),
+                              )),
+                            ],
+                          )
                         ],
                       ),
                       SizedBox(height: 10.h),

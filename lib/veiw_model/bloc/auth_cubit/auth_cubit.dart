@@ -60,6 +60,9 @@ class AuthCubit extends Cubit<AuthState> {
         'password': registerPasswordController.text,
       },
     ).then((value) {
+      registerNameController.clear();
+      registerPasswordController.clear();
+      registerEmailController.clear();
       print(value.data);
       user =User.fromJson(value.data['user']);
       print(user?.name);

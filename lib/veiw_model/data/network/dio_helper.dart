@@ -25,7 +25,7 @@ class DioHelper {
     String? token,
   }) async {
     if (token != null) {
-      dio!.options.headers = {'Authorization': 'Token token="$token"'};
+      dio!.options.headers = {'Authorization': 'bearer $token'};
     }
     try {
       final Response response = await dio!.get(
@@ -46,7 +46,7 @@ class DioHelper {
     String? token,
   }) async {
     if (token != null) {
-      dio!.options.headers = {'Authorization': 'Token token="$token"'};
+      dio!.options.headers = {'Authorization': 'bearer $token'};
     }
     try {
       final Response response = await dio!.post(
@@ -67,7 +67,7 @@ class DioHelper {
     String? token,
   }) async {
     if (token != null) {
-      dio!.options.headers = {'Authorization': 'Token token="$token"'};
+      dio!.options.headers = {'Authorization': 'bearer $token'};
     }
     try {
       final Response response = await dio!.put(
@@ -88,7 +88,7 @@ class DioHelper {
     String? token,
   }) async {
     if (token != null) {
-      dio!.options.headers = {'Authorization': 'Token token="$token"'};
+      dio!.options.headers = {'Authorization': 'bearer $token'};
     }
     try {
       final Response response = await dio!.patch(
@@ -109,7 +109,7 @@ class DioHelper {
     String? token,
   }) async {
     if (token != null) {
-      dio!.options.headers = {'Authorization': 'Token token="$token"'};
+      dio!.options.headers = {'Authorization': 'bearer $token'};
     }
     try {
       final Response response = await dio!.delete(

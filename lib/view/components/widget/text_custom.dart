@@ -14,11 +14,14 @@ class TextCustom extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
+        fontFamily: 'Cloudy June',
         fontSize: fontSize?.sp,
         fontWeight:fontWeight ,
         color: color,
       ),
       maxLines: maxLines,
+      overflow: TextOverflow.ellipsis,
+      textAlign: TextAlign.center,
     );
   }
 }
