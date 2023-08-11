@@ -135,5 +135,29 @@ class TasksCubit extends Cubit<TasksState> {
        throw error;
      });
       }
-
+      Task? currentTask;
+      Future<void>getTaskDetails(int id)async{
+     emit(GetTaskDetailsLoadingState());
+     currentTask ==null;
+     await DioHelper.getData(endPoint: '${EndPoints.tasks}/$id',
+     ).then((value) {
+       currentTask =Task.fromJson(value.data['response']);
+       titleController.text =currentTask?.title ??'';
+       descriptionController.text =currentTask?.description ??'';
+       startDateController.text =currentTask?.startDate ??'';
+       endDataController.text =currentTask?.endDate ??'';
+       emit(GetAllTasksSuccessState());
+     }).catchError((error){
+       print(error.toString());
+       emit(GetTaskDetailsErrorState());
+       throw error;
+     });
+      }
+    void clearInputs(){
+      titleController.clear();
+      descriptionController.clear();
+      startDateController.clear();
+      endDataController.clear();
+      image =null;
+    }
 }

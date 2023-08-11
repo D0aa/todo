@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:to_do_app/veiw_model/bloc/tasks_cubit/tasks_cubit.dart';
-import 'package:to_do_app/veiw_model/bloc/tasks_cubit/tasks_state.dart';
+
 import 'package:to_do_app/veiw_model/utils/constant.dart';
 import 'package:to_do_app/view/components/widget/text_custom.dart';
 
@@ -10,8 +8,8 @@ import '../../../model/task_model.dart';
 
 class TaskWidget extends StatelessWidget {
   final Task task;
-
-  const TaskWidget({required this.task, super.key});
+  final void Function()? onTap;
+  const TaskWidget({required this.task,this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +18,7 @@ class TaskWidget extends StatelessWidget {
         color: Colors.grey.withOpacity(.1),
         clipBehavior: Clip.antiAliasWithSaveLayer,
         child: InkWell(
-          onTap: () {},
+          onTap:onTap,
           child: Container(
             padding: EdgeInsets.all(12.sp),
             decoration: BoxDecoration(

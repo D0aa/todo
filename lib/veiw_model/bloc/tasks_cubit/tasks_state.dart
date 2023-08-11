@@ -20,3 +20,7 @@ class GetImageFromGalleryErrorState extends TasksState{}
 class DeleteTaskLoadingState extends TasksState{}
 class DeleteTaskSuccessState extends TasksState{}
 class DeleteTaskErrorState extends TasksState{}
+
+class GetTaskDetailsLoadingState extends TasksState{}
+class GetTaskDetailsSuccessState extends TasksState{}
+class GetTaskDetailsErrorState extends TasksState{}

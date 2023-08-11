@@ -6,26 +6,33 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:to_do_app/veiw_model/bloc/tasks_cubit/tasks_cubit.dart';
 import 'package:to_do_app/veiw_model/bloc/tasks_cubit/tasks_state.dart';
 import 'package:to_do_app/veiw_model/utils/app_assets.dart';
-import 'package:to_do_app/veiw_model/utils/constant.dart';
 
 import 'package:to_do_app/view/components/widget/text_custom.dart';
 import 'package:to_do_app/view/components/widget/text_form_field_custom.dart';
 
+import '../../../veiw_model/utils/constant.dart';
 import '../../components/widget/elevated_button_custom.dart';
 
-class AddTaskScreen extends StatelessWidget {
-  const AddTaskScreen({super.key});
+class EditTaskScreen extends StatelessWidget {
+  final int id;
+  const EditTaskScreen({required this.id, super.key});
 
   @override
   Widget build(BuildContext context) {
-    var cubit =TasksCubit.get(context)..clearInputs();
+    var cubit=TasksCubit.get(context)..getTaskDetails(id);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.transparent,
         title: Image.asset(AppAssets.logoIcon, height: 70),
       ),
-      body: SingleChildScrollView(
+      body: BlocConsumer<TasksCubit, TasksState>(
+  listener: (context, state) {
+    // TODO: implement listener
+  },
+  builder: (context, state) {
+    return cubit.currentTask == null? const Center(child: CircularProgressIndicator.adaptive()):
+      SingleChildScrollView(
         child: Form(
           key: TasksCubit.get(context).taskFormKey,
           child: SafeArea(
@@ -80,14 +87,14 @@ class AddTaskScreen extends StatelessWidget {
                     keyboardType: TextInputType.none,
                     onTap: () {
                       showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime(DateTime.now().year + 10))
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(DateTime.now().year + 10))
                           .then((value) {
                         if (value != null) {
                           TasksCubit.get(context).startDateController.text =
-                              '${value.year}/${value.month}/${value.day}';
+                          '${value.year}/${value.month}/${value.day}';
                         } else {
                           TasksCubit.get(context).startDateController.clear();
                         }
@@ -111,14 +118,14 @@ class AddTaskScreen extends StatelessWidget {
                     keyboardType: TextInputType.none,
                     onTap: () {
                       showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime(DateTime.now().year + 10))
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(DateTime.now().year + 10))
                           .then((value) {
                         if (value != null) {
                           TasksCubit.get(context).endDataController.text =
-                              '${value.year}/${value.month}/${value.day}';
+                          '${value.year}/${value.month}/${value.day}';
                         } else {
                           TasksCubit.get(context).endDataController.clear();
                         }
@@ -140,7 +147,7 @@ class AddTaskScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12.r),
                             border:
-                                Border.all(color: Colors.black45, width: 1.w)),
+                            Border.all(color: Colors.black45, width: 1.w)),
                         child: BlocConsumer<TasksCubit, TasksState>(
                           listener: (context, state) {
                             // TODO: implement listener
@@ -170,7 +177,7 @@ class AddTaskScreen extends StatelessWidget {
                   BlocBuilder<TasksCubit, TasksState>(
                     builder: (context, state) {
                       return Visibility(
-                        visible: state is AddTasksLoadingState,
+                          visible: state is AddTasksLoadingState,
                           child: const LinearProgressIndicator(color: Colors.black,));
                     },
                   ),
@@ -188,7 +195,7 @@ class AddTaskScreen extends StatelessWidget {
                             .then((value) => Navigator.pop(context));
                       }
                     },
-                    text: 'Add Task',
+                    text: 'Edit Task',
                     color: const Color(0xff363637),
                     backgroundColor: const Color(0xffFEFE9C),
                   )
@@ -197,7 +204,9 @@ class AddTaskScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
+      );
+  },
+),
     );
   }
 }

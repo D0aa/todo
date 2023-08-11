@@ -11,6 +11,7 @@ import 'package:to_do_app/view/components/widget/text_custom.dart';
 import 'package:to_do_app/view/components/widget/toast_message.dart';
 import 'package:to_do_app/view/screens/auth/login_screen.dart';
 import 'package:to_do_app/view/screens/home/add_task_screen.dart';
+import 'package:to_do_app/view/screens/home/edit_task_screen.dart';
 
 import '../../../veiw_model/utils/navigation.dart';
 
@@ -22,8 +23,8 @@ class AllTasksScreen extends StatelessWidget {
     // TasksCubit.get(context).getAllTasks();
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xffFEFE9C),
-        title: TextCustom(
+        backgroundColor: const Color(0xffFEFE9C),
+        title: const TextCustom(
           text: 'To Do List',
           fontWeight: FontWeight.bold,
           fontSize: 23,
@@ -32,10 +33,10 @@ class AllTasksScreen extends StatelessWidget {
         actions: [
           IconButton(
               onPressed: () {
-                Navigation.pushAndRemove(context, LoginScreen());
+                Navigation.pushAndRemove(context, const LoginScreen());
                 CashHelper.clearDate();
               },
-              icon: Icon(Icons.exit_to_app_rounded))
+              icon: const Icon(Icons.exit_to_app_rounded))
         ],
       ),
       body: BlocConsumer<TasksCubit, TasksState>(
@@ -43,14 +44,14 @@ class AllTasksScreen extends StatelessWidget {
           if (state is GetAllTasksErrorState && state.statusCode == 422) {
             print('error in get all tasks');
             showToast(message: 'token is expired');
-            Navigation.pushAndRemove(context, LoginScreen());
+            Navigation.pushAndRemove(context, const LoginScreen());
             CashHelper.clearDate();
           }
         },
         builder: (context, state) {
           var cubit = TasksCubit.get(context);
           return State is GetAllTasksLoadingState
-              ? CircularProgressIndicator.adaptive()
+              ? const CircularProgressIndicator.adaptive()
               : Visibility(
                   visible: cubit.taskModel?.tasks?.length != 0,
                   replacement: SizedBox(
@@ -63,9 +64,9 @@ class AllTasksScreen extends StatelessWidget {
                           repeat: false,
                           height: 200.h,
                           errorBuilder: (context, error, stackTrace) =>
-                              Icon(Icons.error_outline),
+                              const Icon(Icons.error_outline),
                         ),
-                        TextCustom(
+                        const TextCustom(
                           text: 'No Tasks yet, Please add some tasks',
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
@@ -77,9 +78,6 @@ class AllTasksScreen extends StatelessWidget {
                       padding: EdgeInsets.all(12.sp),
                       itemBuilder: (context, index) => Dismissible(
                             key: UniqueKey(),
-                            child: TaskWidget(
-                              task: cubit.taskModel?.tasks?[index] ?? Task(),
-                            ),
                             background: Container(
                               color: Colors.red,
                               child: Icon(Icons.delete_rounded,
@@ -90,6 +88,12 @@ class AllTasksScreen extends StatelessWidget {
                               await cubit.deleteTask(
                                   cubit.taskModel?.tasks?[index].id ?? 0);
                             },
+                            child: TaskWidget(
+                              task: cubit.taskModel?.tasks?[index] ?? Task(),
+                              onTap: (){
+                                Navigation.push(context, EditTaskScreen(id: cubit.taskModel?.tasks?[index].id ??0 ));
+                              },
+                            ),
                           ),
                       separatorBuilder: (context, index) =>
                           SizedBox(height: 10.h),
@@ -99,10 +103,10 @@ class AllTasksScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigation.push(context, AddTaskScreen());
+          Navigation.push(context, const AddTaskScreen());
         },
-        child: Icon(Icons.add),
-        backgroundColor: Color(0xffFEFE9C),
+        child: const Icon(Icons.add),
+        backgroundColor: const Color(0xffFEFE9C),
       ),
     );
   }
