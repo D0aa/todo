@@ -83,7 +83,7 @@ class EditTaskScreen extends StatelessWidget {
                       }
                     },
                     labelText: 'start date',
-                    prefixIcon: const Icon(Icons.date_range),
+                    prefixIcon: const Icon(Icons.edit_calendar_outlined),
                     keyboardType: TextInputType.none,
                     onTap: () {
                       showDatePicker(
@@ -114,7 +114,7 @@ class EditTaskScreen extends StatelessWidget {
                       }
                     },
                     labelText: 'end date',
-                    prefixIcon: const Icon(Icons.date_range_outlined),
+                    prefixIcon: const Icon(Icons.edit_calendar_outlined),
                     keyboardType: TextInputType.none,
                     onTap: () {
                       showDatePicker(
@@ -132,6 +132,50 @@ class EditTaskScreen extends StatelessWidget {
                       });
                     },
                   ),
+                  DropdownButtonFormField(
+                    value:cubit.status,
+                    items: const [
+                      DropdownMenuItem(value:'' ,child:Text('Please, Select statue') ,),
+                      DropdownMenuItem(value:'new' ,child:Text('new') ,),
+                      DropdownMenuItem(value:'in_progress' ,child:Text('In progress') ,),
+                      DropdownMenuItem(value:'completed' ,child:Text('Completed') ,),
+                      DropdownMenuItem(value:'outdated' ,child:Text('Outdated') ,),
+                    ],
+                    validator: (value) {
+                      if (value == '') {
+                        return 'Must not be empty';
+                      } else {
+                        return null;
+                      }
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'status',
+                      labelStyle: const TextStyle(color: Colors.black),
+                      disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(color: Colors.grey, width: 2.w),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(color: Colors.red, width: 1.w),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(color: Colors.red, width: 2.w),
+                      ),
+                    ),
+                    onChanged:(value) {
+                      if(value != null)
+                     { cubit.status=value ;}
+                  },),
                   SizedBox(
                     height: 10.h,
                   ),
@@ -191,7 +235,7 @@ class EditTaskScreen extends StatelessWidget {
                           .currentState!
                           .validate()) {
                         TasksCubit.get(context)
-                            .addTask()
+                            .updateTask(id)
                             .then((value) => Navigator.pop(context));
                       }
                     },

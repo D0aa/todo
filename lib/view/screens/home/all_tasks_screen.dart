@@ -13,7 +13,9 @@ import 'package:to_do_app/view/screens/auth/login_screen.dart';
 import 'package:to_do_app/view/screens/home/add_task_screen.dart';
 import 'package:to_do_app/view/screens/home/edit_task_screen.dart';
 
+import '../../../veiw_model/utils/app_assets.dart';
 import '../../../veiw_model/utils/navigation.dart';
+import '../../components/widget/elevated_button_custom.dart';
 
 class AllTasksScreen extends StatelessWidget {
   const AllTasksScreen({super.key});
@@ -29,8 +31,126 @@ class AllTasksScreen extends StatelessWidget {
           fontWeight: FontWeight.bold,
           fontSize: 23,
         ),
-        centerTitle: true,
+        centerTitle: false,
+        leading: Image.asset(AppAssets.logoIcon, height: 70),
         actions: [
+          BlocConsumer<TasksCubit, TasksState>(
+            listener: (context, state) {
+              // TODO: implement listener
+            },
+            builder: (context, state) {
+              var cubit=TasksCubit.get(context);
+              return IconButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      barrierColor: Colors.black.withOpacity(.2),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20.r))),
+                      context: context,
+                      builder: (context) => SafeArea(
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Padding(
+                            padding: EdgeInsets.all(12.sp),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const TextCustom(
+                                    text: 'Status',
+                                    fontWeight: FontWeight.bold),
+                                SizedBox(
+                                  height: 10.h,
+                                ),
+                                DropdownButtonFormField(
+                                  value: cubit.filterStatus,
+                                  items: const [
+                                    DropdownMenuItem(
+                                      value: '',
+                                      child: Text('All Tasks'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'new',
+                                      child: Text('new'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'in_progress',
+                                      child: Text('In progress'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'completed',
+                                      child: Text('Completed'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'outdated',
+                                      child: Text('Outdated'),
+                                    ),
+                                  ],
+                                  validator: (value) {
+                                    if (value == '') {
+                                      return 'Must not be empty';
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    labelStyle:
+                                        const TextStyle(color: Colors.black),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey, width: 1.w),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey, width: 1.w),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey, width: 2.w),
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                      borderSide: BorderSide(
+                                          color: Colors.red, width: 1.w),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                      borderSide: BorderSide(
+                                          color: Colors.red, width: 2.w),
+                                    ),
+                                  ),
+                                  onChanged: (value) {
+                                    if(value != null)
+                                    { cubit.filterStatus=value ;}
+                                  },
+                                ),
+                                SizedBox(
+                                  height: 10.h,
+                                ),
+                                ElevatedButtonCustom(
+                                  onPressed: () {
+
+                                      cubit.filterTask().then((value) => Navigator.pop(context));
+
+                                  },
+                                  text: 'Apply Filter',
+                                  color: const Color(0xff363637),
+                                  backgroundColor: const Color(0xffFEFE9C),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.filter_alt_rounded));
+            },
+          ),
           IconButton(
               onPressed: () {
                 Navigation.pushAndRemove(context, const LoginScreen());
@@ -90,8 +210,12 @@ class AllTasksScreen extends StatelessWidget {
                             },
                             child: TaskWidget(
                               task: cubit.taskModel?.tasks?[index] ?? Task(),
-                              onTap: (){
-                                Navigation.push(context, EditTaskScreen(id: cubit.taskModel?.tasks?[index].id ??0 ));
+                              onTap: () {
+                                Navigation.push(
+                                    context,
+                                    EditTaskScreen(
+                                        id: cubit.taskModel?.tasks?[index].id ??
+                                            0));
                               },
                             ),
                           ),

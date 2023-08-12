@@ -76,7 +76,7 @@ class AddTaskScreen extends StatelessWidget {
                       }
                     },
                     labelText: 'start date',
-                    prefixIcon: const Icon(Icons.date_range),
+                    prefixIcon: const Icon(Icons.edit_calendar_outlined),
                     keyboardType: TextInputType.none,
                     onTap: () {
                       showDatePicker(
@@ -107,7 +107,7 @@ class AddTaskScreen extends StatelessWidget {
                       }
                     },
                     labelText: 'end date',
-                    prefixIcon: const Icon(Icons.date_range_outlined),
+                    prefixIcon: const Icon(Icons.edit_calendar_outlined),
                     keyboardType: TextInputType.none,
                     onTap: () {
                       showDatePicker(

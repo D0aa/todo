@@ -15,7 +15,7 @@ class TaskWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return  Material(
         borderRadius: BorderRadius.circular(12.sp),
-        color: Colors.grey.withOpacity(.1),
+        color: Colors.grey.withOpacity(.05),
         clipBehavior: Clip.antiAliasWithSaveLayer,
         child: InkWell(
           onTap:onTap,
@@ -23,7 +23,7 @@ class TaskWidget extends StatelessWidget {
             padding: EdgeInsets.all(12.sp),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.sp),
-                border: Border.all(color: Colors.black, width: .5.w)),
+                border: Border.all(color: checkStatus(task.status ?? ''), width: .5.w)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -42,7 +42,7 @@ class TaskWidget extends StatelessWidget {
                     visible: task.image != null,
                     child: Image.network('$baseImageUrl${task.image}',
                       errorBuilder: (context, error, stackTrace) =>
-                          Icon(Icons.error_outline),)),
+                          const Icon(Icons.error_outline),)),
                 SizedBox(
                   height: 10.h,
                 ),
@@ -56,10 +56,10 @@ class TaskWidget extends StatelessWidget {
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12.sp),
                                 border:
-                                Border.all(color: Colors.black, width: .5.w)),
+                                Border.all(color: checkStatus(task.status ??''), width: .5.w)),
                             child: Row(
                               children: [
-                                Icon(Icons.timer_outlined),
+                                const Icon(Icons.timer_outlined),
                                 Expanded(
                                     child: TextCustom(
                                         text: task.startDate ?? '',
@@ -77,10 +77,10 @@ class TaskWidget extends StatelessWidget {
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12.sp),
                                 border:
-                                Border.all(color: Colors.black, width: .5.w)),
+                                Border.all(color: checkStatus(task.status ?? ''), width: .5.w)),
                             child: Row(
                               children: [
-                                Icon(Icons.timer_off_rounded),
+                                const Icon(Icons.timer_off_outlined),
                                 Expanded(
                                     child: TextCustom(
                                       text: task.endDate ?? '',
@@ -97,5 +97,16 @@ class TaskWidget extends StatelessWidget {
         ),
       );
 
+  }
+}
+
+Color checkStatus(String status){
+  switch(status){
+    case 'new':return Colors.blue;
+    case 'in_progress' :return Colors.lime;
+    case 'completed' :return Colors.green;
+    case 'outdated' :return Colors.deepOrange;
+    default :
+      return Colors.black;
   }
 }

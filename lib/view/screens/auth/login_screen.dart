@@ -11,6 +11,8 @@ import 'package:to_do_app/view/components/widget/text_form_field_custom.dart';
 import 'package:to_do_app/view/screens/auth/register_screen.dart';
 import 'package:to_do_app/view/screens/home/all_tasks_screen.dart';
 
+import 'package:to_do_app/view/screens/home/tasks_dashboard.dart';
+
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 

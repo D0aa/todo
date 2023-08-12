@@ -24,3 +24,15 @@ class DeleteTaskErrorState extends TasksState{}
 class GetTaskDetailsLoadingState extends TasksState{}
 class GetTaskDetailsSuccessState extends TasksState{}
 class GetTaskDetailsErrorState extends TasksState{}
+
+class EditTaskLoadingState extends TasksState{}
+class EditTaskSuccessState extends TasksState{}
+class EditTaskErrorState extends TasksState{}
+
+class FilterTaskLoadingState extends TasksState{}
+class FilterTaskSuccessState extends TasksState{}
+class FilterTaskErrorState extends TasksState{}
+
+class DashboardTaskLoadingState extends TasksState{}
+class DashboardTaskSuccessState extends TasksState{}
+class DashboardTaskErrorState extends TasksState{}
