@@ -32,6 +32,7 @@ class TasksCubit extends Cubit<TasksState> {
     ).then((value) {
       taskModel = TaskModel.fromJson(value.data);
       emit(GetAllTasksSuccessState());
+      taskDashboard();
     }).catchError((error) {
       print(error.toString());
       if (error is DioException) {
@@ -69,6 +70,7 @@ class TasksCubit extends Cubit<TasksState> {
       // taskModel?.tasks?.add(newTask);
       emit(AddTasksSuccessState());
       getAllTasks();
+      taskDashboard();
       clearInputs();
     }).catchError((error) {
       print(error.toString());
@@ -121,6 +123,10 @@ class TasksCubit extends Cubit<TasksState> {
     }
   }
 
+  void clearTasks(){
+    taskModel=null;
+  }
+
   Future<void> deleteTask(int id) async {
     emit(DeleteTaskLoadingState());
 
@@ -130,7 +136,7 @@ class TasksCubit extends Cubit<TasksState> {
     ).then((value) {
       emit(DeleteTaskSuccessState());
       showToast(message: 'task delete successfully');
-      getAllTasks();
+      taskDashboard();
     }).catchError((error) {
       print(error.toString());
       if (error is DioException) {
@@ -157,6 +163,7 @@ class TasksCubit extends Cubit<TasksState> {
       endDataController.text = currentTask?.endDate ?? '';
       status = currentTask?.status ?? '';
       emit(GetAllTasksSuccessState());
+      taskDashboard();
     }).catchError((error) {
       print(error.toString());
       emit(GetTaskDetailsErrorState());
@@ -193,6 +200,7 @@ class TasksCubit extends Cubit<TasksState> {
       showToast(message: 'Task Updated Successfully');
       emit(EditTaskSuccessState());
       getAllTasks();
+      taskDashboard();
     }).catchError((error) {
       print(error.toString());
       emit(EditTaskErrorState());

@@ -2,6 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:to_do_app/model/user.dart';
 import 'package:to_do_app/veiw_model/bloc/auth_cubit/auth_state.dart';
 import 'package:to_do_app/veiw_model/data/local/cash_helper.dart';
@@ -33,17 +35,19 @@ class AuthCubit extends Cubit<AuthState> {
       },
     ).then((value) {
       print(value.data);
-      user =User.fromJson(value.data['user']);
+      user = User.fromJson(value.data['user']);
       print(user?.name);
       showToast(message: 'Welcome ${user?.name ?? ''}');
-      CashHelper.put(key: LocalKeys.token, value: value.data['authorisation']['token']);
+      CashHelper.put(
+          key: LocalKeys.token, value: value.data['authorisation']['token']);
       CashHelper.put(key: LocalKeys.userName, value: user?.name);
       emit(LoginSuccessState());
-    }).catchError((error){
+    }).catchError((error) {
       print(error.toString());
-      if(error is DioException){
+      if (error is DioException) {
         print(error.response?.data);
-        showToast(message:error.response?.data['message']??'there is an error' );
+        showToast(
+            message: error.response?.data['message'] ?? 'there is an error');
       }
       emit(LoginErrorState());
       throw error;
@@ -55,7 +59,7 @@ class AuthCubit extends Cubit<AuthState> {
     await DioHelper.postData(
       endPoint: EndPoints.register,
       body: {
-        'name' :registerNameController.text,
+        'name': registerNameController.text,
         'email': registerEmailController.text,
         'password': registerPasswordController.text,
       },
@@ -64,19 +68,75 @@ class AuthCubit extends Cubit<AuthState> {
       registerPasswordController.clear();
       registerEmailController.clear();
       print(value.data);
-      user =User.fromJson(value.data['user']);
+      user = User.fromJson(value.data['user']);
       print(user?.name);
       showToast(message: 'Welcome ${user?.name ?? ''}');
-      CashHelper.put(key: LocalKeys.token, value: value.data['authorisation']['token']);
+      CashHelper.put(
+          key: LocalKeys.token, value: value.data['authorisation']['token']);
       CashHelper.put(key: LocalKeys.userName, value: user?.name);
       emit(RegisterSuccessState());
-    }).catchError((error){
+    }).catchError((error) {
       print(error.toString());
-      if(error is DioException){
+      if (error is DioException) {
         print(error.response?.data);
-        showToast(message:error.response?.data['message']??'there is an error' );
+        showToast(
+            message: error.response?.data['message'] ?? 'there is an error');
       }
       emit(RegisterErrorState());
+      throw error;
+    });
+  }
+
+  final ImagePicker picker = ImagePicker();
+
+// Pick an image.
+  XFile? profileImage;
+
+  Future<void> gitImageFromGallery() async {
+    emit(GetImageFromGalleryLoadingState());
+    var status = await Permission.photos.status;
+    print(status);
+    if (status != PermissionStatus.granted) {
+      showToast(message: 'you need to allow permission to photos');
+      await Permission.photos.request();
+      openAppSettings();
+    } else {
+      profileImage = await picker.pickImage(source: ImageSource.gallery);
+      if (profileImage == null) {
+        showToast(message: 'image not selected');
+        GetImageFromGalleryErrorState();
+      } else {
+        emit(GetImageFromGallerySuccessState());
+      }
+    }
+  }
+
+  GlobalKey<FormState> updateFormKey = GlobalKey<FormState>();
+  TextEditingController updateNameController = TextEditingController();
+
+  Future<void> updateProfile() async {
+    emit(UpdateProfilerLoadingState());
+    FormData formData = FormData.fromMap({
+      'name': registerNameController.text,
+      if (profileImage != null)
+        'profile_image': await MultipartFile.fromFile(profileImage!.path)
+    });
+    DioHelper.postData(
+            endPoint: EndPoints.updateProfile,
+            token: CashHelper.get(key: LocalKeys.token),
+            formData: formData)
+        .then((value) {
+          print(value.data);
+          showToast(message: 'updated');
+          user = User.fromJson(value.data['0']);
+          // user?.name=value.data['0']['name'];
+          // user?.profileImage=value.data['0']['profile_image'];
+          CashHelper.put(key: LocalKeys.userName, value: value.data['0']['name']);
+          CashHelper.put(key: LocalKeys.profileImage, value: profileImage?.path);
+      emit(UpdateProfilerSuccessState());
+    }).catchError((error){
+      print(error.toString());
+      emit(UpdateProfilerErrorState());
       throw error;
     });
   }

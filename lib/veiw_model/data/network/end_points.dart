@@ -4,4 +4,5 @@ class EndPoints{
   static String register='register';
   static String tasks='tasks';
   static String dashboard='dashboard';
+  static String updateProfile='update-profile';
 }

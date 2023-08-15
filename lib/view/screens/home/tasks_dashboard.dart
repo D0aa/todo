@@ -19,13 +19,25 @@ class TasksDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit=TasksCubit.get(context)..taskDashboard();
+    var cubit=TasksCubit.get(context);
     return Scaffold(
       body: SafeArea(
         child: SizedBox(
           width: double.infinity,
           child: BlocConsumer<TasksCubit, TasksState>(
             listener: (context, state) {
+              if(cubit.allTasks==0){
+                cubit.allTasks=1;
+              }
+              if(state is DashboardTaskSuccessState){
+                cubit.taskDashboard();
+              }
+              // if(state is DeleteTaskSuccessState){
+              //   cubit.taskDashboard();
+              // }
+              // if(state is EditTaskSuccessState){
+              //   cubit.taskDashboard();
+              // }
               if (state is GetAllTasksErrorState && state.statusCode == 422) {
                 print('error in get all tasks');
                 showToast(message: 'token is expired');
@@ -34,6 +46,7 @@ class TasksDashboardScreen extends StatelessWidget {
               }
             },
             builder: (context, state) {
+
               return ListView(
                 padding: EdgeInsets.all(20.sp),
                 children: [

@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       return MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => AuthCubit(),),
-          BlocProvider(create: (context) => TasksCubit()..getAllTasks(),),
+          BlocProvider(create: (context) => TasksCubit()..taskDashboard()..getAllTasks(),),
         ],
         child: MaterialApp(
           title: 'Flutter Demo',
