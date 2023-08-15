@@ -15,6 +15,7 @@ import 'package:to_do_app/view/components/task/task_wedgit.dart';
 import 'package:to_do_app/view/components/widget/text_custom.dart';
 import 'package:to_do_app/view/components/widget/toast_message.dart';
 import 'package:to_do_app/view/screens/auth/login_screen.dart';
+import 'package:to_do_app/view/screens/drawer/change_password.dart';
 import 'package:to_do_app/view/screens/drawer/update_profile_screen.dart';
 import 'package:to_do_app/view/screens/home/add_task_screen.dart';
 import 'package:to_do_app/view/screens/home/edit_task_screen.dart';
@@ -27,7 +28,7 @@ class AllTasksScreen extends StatelessWidget {
   const AllTasksScreen({ super.key});
   @override
   Widget build(BuildContext context) {
-    CashHelper.get(key: 'profile_image');
+
     // TasksCubit.get(context).getAllTasks();
     var cubit = TasksCubit.get(context);
     return Scaffold(
@@ -46,11 +47,11 @@ class AllTasksScreen extends StatelessWidget {
                 radius: 70.r,
                 backgroundImage:
                 Image.file(File(
-                CashHelper.get(key: LocalKeys.profileImage)??''),errorBuilder:
-                  (context, error, stackTrace) => 
+                      CashHelper.get(key: LocalKeys.profileImage)??''),errorBuilder:
+                      (context, error, stackTrace) =>
                       Icon(Icons.person,size: 30.sp)
-                  ,).image
-                    
+                    ,).image
+
 
               ),
               SizedBox(height: 10.h,),
@@ -74,7 +75,9 @@ class AllTasksScreen extends StatelessWidget {
                   leading: Icon(Icons.password),
                   iconColor: Colors.green,
                   title: TextCustom(text: 'Change Password'),
-                  onTap: (){},
+                  onTap: (){
+                    Navigation.push(context, ChangePasswordScreen());
+                  },
                 ),
               ),
               SizedBox(height: 10.h,),
@@ -84,7 +87,10 @@ class AllTasksScreen extends StatelessWidget {
                   leading: Icon(Icons.logout),
                   iconColor: Colors.green,
                   title: TextCustom(text: 'Logout'),
-                  onTap: (){},
+                  onTap: (){
+                    Navigation.pushAndRemove(context, const LoginScreen());
+                    CashHelper.clearDate();
+                  },
                 ),
               ),
               SizedBox(height: 10.h,),

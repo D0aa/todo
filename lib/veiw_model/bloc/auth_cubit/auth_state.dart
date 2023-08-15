@@ -17,4 +17,7 @@ class GetImageFromGalleryErrorState extends AuthState{}
 class UpdateProfilerLoadingState extends AuthState{}
 class UpdateProfilerSuccessState extends AuthState{}
 class UpdateProfilerErrorState extends AuthState{}
+class ChangePasswordLoadingState extends AuthState{}
+class ChangePasswordSuccessState extends AuthState{}
+class ChangePasswordErrorState extends AuthState{}
 

@@ -5,4 +5,5 @@ class EndPoints{
   static String tasks='tasks';
   static String dashboard='dashboard';
   static String updateProfile='update-profile';
+  static String changePassword='change-password';
 }

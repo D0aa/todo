@@ -23,6 +23,9 @@ class AuthCubit extends Cubit<AuthState> {
   TextEditingController registerEmailController = TextEditingController();
   TextEditingController registerPasswordController = TextEditingController();
   TextEditingController registerNameController = TextEditingController();
+  TextEditingController changePasswordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+  GlobalKey<FormState> passwordFormKey = GlobalKey<FormState>();
   User? user;
 
   Future<void> userLogin() async {
@@ -137,6 +140,22 @@ class AuthCubit extends Cubit<AuthState> {
     }).catchError((error){
       print(error.toString());
       emit(UpdateProfilerErrorState());
+      throw error;
+    });
+  }
+  Future<void>changePassword()async{
+    emit(ChangePasswordLoadingState());
+    DioHelper.postData(endPoint: EndPoints.changePassword,token: CashHelper.get(key: LocalKeys.token),
+      body: {
+        'password':changePasswordController.text,
+        'confirm_password':confirmPasswordController.text
+      }
+    ).then((value) {
+      emit(ChangePasswordSuccessState());
+      showToast(message: 'Password Changed Successfully');
+    }).catchError((error){
+      print(error.toString());
+      emit(ChangePasswordErrorState());
       throw error;
     });
   }

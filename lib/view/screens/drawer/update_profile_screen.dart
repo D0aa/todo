@@ -20,7 +20,9 @@ class UpdateProfileScreen extends StatelessWidget {
       body: SafeArea(
         child: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
-            // TODO: implement listener
+            if(state is UpdateProfilerSuccessState){
+              Navigator.pop(context);
+            }
           },
           builder: (context, state) {
             return Form(
@@ -74,8 +76,8 @@ class UpdateProfileScreen extends StatelessWidget {
                     onPressed: () {
                     if(cubit.updateFormKey.currentState!.validate())
                       {
-                        cubit.updateProfile().then((value) => Navigator.pop(context));
-                      }    
+                        cubit.updateProfile();
+                      }
                     },
                     text: 'Update Profile',
                     color: const Color(0xff363637),
