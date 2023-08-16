@@ -9,6 +9,14 @@ class GetAllTasksErrorState extends TasksState{
 
   GetAllTasksErrorState({this.statusCode});
 }
+
+class GetMoreTasksLoadingState extends TasksState{}
+class GetMoreTasksSuccessState extends TasksState{}
+class GetMoreTasksErrorState extends TasksState{
+  final int? statusCode;
+
+  GetMoreTasksErrorState({this.statusCode});
+}
 class AddTasksLoadingState extends TasksState{}
 class AddTasksSuccessState extends TasksState{}
 class AddTasksErrorState extends TasksState{}

@@ -21,3 +21,13 @@ class ChangePasswordLoadingState extends AuthState{}
 class ChangePasswordSuccessState extends AuthState{}
 class ChangePasswordErrorState extends AuthState{}
 
+class LogoutLoadingState extends AuthState{}
+class LogoutSuccessState extends AuthState{}
+class LogoutErrorState extends AuthState{}
+
+class RefreshLoadingState extends AuthState{}
+class RefreshSuccessState extends AuthState{}
+class RefreshErrorState extends AuthState{}
+
+class VisibleSuccessState extends AuthState{}
+

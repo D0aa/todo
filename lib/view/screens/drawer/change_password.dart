@@ -13,6 +13,7 @@ class ChangePasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     var cubit=AuthCubit.get(context);
     return Scaffold(
       body: SafeArea(child: BlocConsumer<AuthCubit, AuthState>(
@@ -28,8 +29,17 @@ class ChangePasswordScreen extends StatelessWidget {
                 SizedBox(height: 10.h,),
                 Image.asset(AppAssets.logoIcon, height: 120.h),
                 TextFormFieldCustom(
+                  suffixIcon: Visibility(
+                    visible: cubit.visible,
+                    child: InkWell(child: Icon(Icons.visibility,),
+                      onTap: (){cubit.isVisible();},
+                    ),
+                    replacement: InkWell(child: Icon(Icons.visibility_off),
+                      onTap: (){cubit.isVisible();},
+                    ),
+                  ),
                   controller: cubit.changePasswordController,
-                  obscureText: true,
+                  obscureText: cubit.visible,
                   labelText: 'Password',
                   textInputAction: TextInputAction.done,
                   keyboardType: TextInputType.emailAddress,
@@ -48,8 +58,17 @@ class ChangePasswordScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 20.h),
                 TextFormFieldCustom(
+                  suffixIcon: Visibility(
+                    visible: cubit.visible,
+                    child: InkWell(child: Icon(Icons.visibility,),
+                        onTap: (){cubit.isVisible();},
+                    ),
+                    replacement: InkWell(child: Icon(Icons.visibility_off),
+                      onTap: (){cubit.isVisible();},
+                    ),
+                  ),
                   controller: cubit.confirmPasswordController,
-                  obscureText: true,
+                  obscureText: cubit.visible,
                   labelText: 'Password',
                   textInputAction: TextInputAction.done,
                   keyboardType: TextInputType.emailAddress,

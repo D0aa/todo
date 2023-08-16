@@ -43,6 +43,38 @@ class TasksCubit extends Cubit<TasksState> {
     });
   }
 
+  int page=2;
+  static bool hasMore=true;
+  TaskModel? moreTasks;
+
+  Future<void> getMoreTasks() async {
+    emit(GetMoreTasksLoadingState());
+    await DioHelper.getData(
+      endPoint: EndPoints.tasks,
+      token: CashHelper.get(key: LocalKeys.token),
+      queryParameters: {
+        'page': page,
+      },
+    ).then((value) {
+      moreTasks = TaskModel.fromJson(value.data);
+      if((moreTasks?.tasks?? []).isEmpty){
+        hasMore=false;
+      }else{
+        taskModel?.tasks?.addAll(moreTasks?.tasks ?? []);
+        page++;
+      }
+      emit(GetMoreTasksSuccessState());
+      taskDashboard();
+    }).catchError((error) {
+      print(error.toString());
+      if (error is DioException) {
+        print(error.response?.data);
+        print(error.response?.statusCode);
+      }
+      emit(GetMoreTasksErrorState());
+    });
+  }
+
   Future<void> addTask() async {
     emit(AddTasksLoadingState());
     FormData fromData = FormData.fromMap({

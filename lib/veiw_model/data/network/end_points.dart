@@ -6,4 +6,6 @@ class EndPoints{
   static String dashboard='dashboard';
   static String updateProfile='update-profile';
   static String changePassword='change-password';
+  static String logout='logout';
+  static String refresh='refresh';
 }

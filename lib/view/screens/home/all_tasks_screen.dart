@@ -20,86 +20,115 @@ import 'package:to_do_app/view/screens/drawer/update_profile_screen.dart';
 import 'package:to_do_app/view/screens/home/add_task_screen.dart';
 import 'package:to_do_app/view/screens/home/edit_task_screen.dart';
 import 'package:to_do_app/view/screens/home/tasks_dashboard.dart';
-
 import '../../../veiw_model/utils/navigation.dart';
 import '../../components/widget/elevated_button_custom.dart';
 
-class AllTasksScreen extends StatelessWidget {
-  const AllTasksScreen({ super.key});
+class AllTasksScreen extends StatefulWidget {
+  const AllTasksScreen({super.key});
+
+  @override
+  State<AllTasksScreen> createState() => _AllTasksScreenState();
+}
+
+class _AllTasksScreenState extends State<AllTasksScreen> {
+
+  final ScrollController scrollController=ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(() {
+      if(scrollController.position.pixels!=0 &&scrollController.position.atEdge && TasksCubit.hasMore){
+        TasksCubit.get(context).getMoreTasks();
+      }
+
+    });
+  }
+  @override
+  void dispose(){
+    scrollController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
-
     // TasksCubit.get(context).getAllTasks();
     var cubit = TasksCubit.get(context);
     return Scaffold(
       drawer: BlocConsumer<AuthCubit, AuthState>(
-  listener: (context, state) {
-    // TODO: implement listener
-  },
-  builder: (context, state) {
-    return Drawer(
-        child: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.all(12.sp),
-            children: [
-
-              CircleAvatar(
-                radius: 70.r,
-                backgroundImage:
-                Image.file(File(
-                      CashHelper.get(key: LocalKeys.profileImage)??''),errorBuilder:
-                      (context, error, stackTrace) =>
-                      Icon(Icons.person,size: 30.sp)
-                    ,).image
-
-
+        listener: (context, state) {
+          // TODO: implement listener
+        },
+        builder: (context, state) {
+          return Drawer(
+            child: SafeArea(
+              child: ListView(
+                padding: EdgeInsets.all(12.sp),
+                children: [
+                  CircleAvatar(
+                      radius: 70.r,
+                      backgroundImage: Image.file(
+                        File(CashHelper.get(key: LocalKeys.profileImage) ?? ''),
+                        errorBuilder: (context, error, stackTrace) =>
+                            Icon(Icons.person, size: 30.sp),
+                      ).image),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  TextCustom(
+                      text: CashHelper.get(key: LocalKeys.userName),
+                      fontSize: 22.sp),
+                  SizedBox(
+                    height: 15.h,
+                  ),
+                  Ink(
+                    color: Colors.grey.withOpacity(.1),
+                    child: ListTile(
+                      leading: const Icon(Icons.person_2_rounded),
+                      iconColor: Colors.green,
+                      title: const TextCustom(text: 'Profile'),
+                      onTap: () {
+                        Navigation.push(context, const UpdateProfileScreen());
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Ink(
+                    color: Colors.grey.withOpacity(.1),
+                    child: ListTile(
+                      leading: const Icon(Icons.password),
+                      iconColor: Colors.green,
+                      title: const TextCustom(text: 'Change Password'),
+                      onTap: () {
+                        Navigation.push(context, const ChangePasswordScreen());
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Ink(
+                    color: Colors.grey.withOpacity(.1),
+                    child: ListTile(
+                      leading: const Icon(Icons.logout),
+                      iconColor: Colors.green,
+                      title: const TextCustom(text: 'Logout'),
+                      onTap: () {
+                        AuthCubit.get(context).logout().then(
+                            (value) => Navigation.push(context, const LoginScreen()));
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                ],
               ),
-              SizedBox(height: 10.h,),
-              TextCustom(text: CashHelper.get(key: LocalKeys.userName),fontSize: 22.sp),
-              SizedBox(height: 15.h,),
-              Ink(
-                color: Colors.grey.withOpacity(.1),
-                child: ListTile(
-                  leading: Icon(Icons.person_2_rounded),
-                  iconColor: Colors.green,
-                  title: TextCustom(text: 'Profile'),
-                  onTap: (){
-                    Navigation.push(context, UpdateProfileScreen());
-                  },
-                ),
-              ),
-              SizedBox(height: 10.h,),
-              Ink(
-                color: Colors.grey.withOpacity(.1),
-                child: ListTile(
-                  leading: Icon(Icons.password),
-                  iconColor: Colors.green,
-                  title: TextCustom(text: 'Change Password'),
-                  onTap: (){
-                    Navigation.push(context, ChangePasswordScreen());
-                  },
-                ),
-              ),
-              SizedBox(height: 10.h,),
-              Ink(
-                color: Colors.grey.withOpacity(.1),
-                child: ListTile(
-                  leading: Icon(Icons.logout),
-                  iconColor: Colors.green,
-                  title: TextCustom(text: 'Logout'),
-                  onTap: (){
-                    Navigation.pushAndRemove(context, const LoginScreen());
-                    CashHelper.clearDate();
-                  },
-                ),
-              ),
-              SizedBox(height: 10.h,),
-            ],
-          ),
-        ),
-      );
-  },
-),
+            ),
+          );
+        },
+      ),
       appBar: AppBar(
         backgroundColor: const Color(0xffFEFE9C),
         title: const TextCustom(
@@ -116,7 +145,7 @@ class AllTasksScreen extends StatelessWidget {
               // TODO: implement listener
             },
             builder: (context, state) {
-              var cubit=TasksCubit.get(context);
+              var cubit = TasksCubit.get(context);
               return IconButton(
                   onPressed: () {
                     showModalBottomSheet(
@@ -201,8 +230,9 @@ class AllTasksScreen extends StatelessWidget {
                                     ),
                                   ),
                                   onChanged: (value) {
-                                    if(value != null)
-                                    { cubit.filterStatus=value ;}
+                                    if (value != null) {
+                                      cubit.filterStatus = value;
+                                    }
                                   },
                                 ),
                                 SizedBox(
@@ -210,9 +240,8 @@ class AllTasksScreen extends StatelessWidget {
                                 ),
                                 ElevatedButtonCustom(
                                   onPressed: () {
-
-                                      cubit.filterTask().then((value) => Navigator.pop(context));
-
+                                    cubit.filterTask().then(
+                                        (value) => Navigator.pop(context));
                                   },
                                   text: 'Apply Filter',
                                   color: const Color(0xff363637),
@@ -228,27 +257,30 @@ class AllTasksScreen extends StatelessWidget {
                   icon: const Icon(Icons.filter_alt_rounded));
             },
           ),
-          IconButton(onPressed: (){
-            Navigation.push(context, TasksDashboardScreen());
-          }, icon: const Icon(Icons.dashboard),),
+          IconButton(
+            onPressed: () {
+              Navigation.push(context, const TasksDashboardScreen());
+            },
+            icon: const Icon(Icons.dashboard),
+          ),
           IconButton(
               onPressed: () {
-                Navigation.pushAndRemove(context, const LoginScreen());
-                CashHelper.clearDate();
+                AuthCubit.get(context)
+                    .logout()
+                    .then((value) => Navigation.push(context, const LoginScreen()));
               },
               icon: const Icon(Icons.exit_to_app_rounded)),
-
         ],
       ),
       body: BlocConsumer<TasksCubit, TasksState>(
         listener: (context, state) {
-          if(state is DeleteTaskLoadingState){
+          if (state is DeleteTaskLoadingState) {
             cubit.clearTasks();
           }
-          if(state is DeleteTaskSuccessState ){
+          if (state is DeleteTaskSuccessState) {
             cubit.getAllTasks();
           }
-          if(state is DeleteTaskErrorState ){
+          if (state is DeleteTaskErrorState) {
             cubit.getAllTasks();
           }
           if (state is GetAllTasksErrorState && state.statusCode == 422) {
@@ -257,10 +289,8 @@ class AllTasksScreen extends StatelessWidget {
             Navigation.pushAndRemove(context, const LoginScreen());
             CashHelper.clearDate();
           }
-
         },
         builder: (context, state) {
-
           return State is GetAllTasksLoadingState
               ? const CircularProgressIndicator.adaptive()
               : Visibility(
@@ -285,34 +315,52 @@ class AllTasksScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  child: ListView.separated(
-                      padding: EdgeInsets.all(12.sp),
-                      itemBuilder: (context, index) => Dismissible(
-                            key: UniqueKey(),
-                            background: Container(
-                              color: Colors.red,
-                              child: Icon(Icons.delete_rounded,
-                                  color: Colors.white, size: 50.sp),
-                            ),
-                            direction: DismissDirection.endToStart,
-                            onDismissed: (direction) async {
-                              await cubit.deleteTask(
-                                  cubit.taskModel?.tasks?[index].id ?? 0);
-                            },
-                            child: TaskWidget(
-                              task: cubit.taskModel?.tasks?[index] ?? Task(),
-                              onTap: () {
-                                Navigation.push(
-                                    context,
-                                    EditTaskScreen(
-                                        id: cubit.taskModel?.tasks?[index].id ??
-                                            0));
-                              },
-                            ),
-                          ),
-                      separatorBuilder: (context, index) =>
-                          SizedBox(height: 10.h),
-                      itemCount: cubit.taskModel?.tasks?.length ?? 0),
+                  child: RefreshIndicator(
+                    color: Colors.black,
+                    onRefresh: () async {
+                      await AuthCubit.get(context).refresh();
+                    },
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: ListView.separated(
+                            controller: scrollController,
+                              padding: EdgeInsets.all(12.sp),
+                              itemBuilder: (context, index) => Dismissible(
+                                    key: UniqueKey(),
+                                    background: Container(
+                                      color: Colors.red,
+                                      child: Icon(Icons.delete_rounded,
+                                          color: Colors.white, size: 50.sp),
+                                    ),
+                                    direction: DismissDirection.endToStart,
+                                    onDismissed: (direction) async {
+                                      await cubit.deleteTask(
+                                          cubit.taskModel?.tasks?[index].id ?? 0);
+                                    },
+                                    child: TaskWidget(
+                                      task: cubit.taskModel?.tasks?[index] ?? Task(),
+                                      onTap: () {
+                                        Navigation.push(
+                                            context,
+                                            EditTaskScreen(
+                                                id: cubit.taskModel?.tasks?[index]
+                                                        .id ??
+                                                    0));
+                                      },
+                                    ),
+                                  ),
+                              separatorBuilder: (context, index) =>
+                                  SizedBox(height: 10.h),
+                              itemCount: cubit.taskModel?.tasks?.length ?? 0),
+                        ),
+                        if(state is GetMoreTasksLoadingState)
+                        const SafeArea(child: Center(child: CircularProgressIndicator(color: Colors.black),)),
+                        if(!TasksCubit.hasMore)
+                          const SafeArea(child: Center(child: TextCustom(text: 'No more tasks to get')))
+                      ],
+                    ),
+                  ),
                 );
         },
       ),

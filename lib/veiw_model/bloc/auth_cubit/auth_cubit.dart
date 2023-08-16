@@ -137,6 +137,8 @@ class AuthCubit extends Cubit<AuthState> {
           CashHelper.put(key: LocalKeys.userName, value: value.data['0']['name']);
           CashHelper.put(key: LocalKeys.profileImage, value: profileImage?.path);
       emit(UpdateProfilerSuccessState());
+      registerNameController.clear();
+      profileImage=null;
     }).catchError((error){
       print(error.toString());
       emit(UpdateProfilerErrorState());
@@ -158,5 +160,41 @@ class AuthCubit extends Cubit<AuthState> {
       emit(ChangePasswordErrorState());
       throw error;
     });
+  }
+
+  Future<void>logout()async{
+    emit(LogoutLoadingState());
+    DioHelper.postData(endPoint: EndPoints.logout,token: CashHelper.get(key: LocalKeys.token),
+
+    ).then((value) {
+      emit(LogoutSuccessState());
+      showToast(message: 'logout Successfully');
+      loginPasswordEmailController.clear();
+      loginEmailController.clear();
+    }).catchError((error){
+      print(error.toString());
+      emit(LogoutErrorState());
+      throw error;
+    });
+  }
+
+  Future<void>refresh()async{
+    emit(RefreshLoadingState());
+    DioHelper.postData(endPoint: EndPoints.refresh,token: CashHelper.get(key: LocalKeys.token),
+
+    ).then((value) {
+      emit(RefreshSuccessState());
+      showToast(message: 'refresh Successfully');
+
+    }).catchError((error){
+      print(error.toString());
+      emit(RefreshErrorState());
+      throw error;
+    });
+  }
+  bool visible=false;
+  void isVisible(){
+    visible=(!visible);
+    emit(VisibleSuccessState());
   }
 }

@@ -11,9 +11,11 @@ class TextFormFieldCustom extends StatelessWidget {
   final bool obscureText;
   final TextInputAction? textInputAction;
   final double? redius;
+  final Widget? suffixIcon;
 
   const TextFormFieldCustom(
       {this.keyboardType,
+        this.suffixIcon,
       this.textInputAction = TextInputAction.next,
       this.obscureText = false,
       this.labelText,
@@ -38,6 +40,7 @@ class TextFormFieldCustom extends StatelessWidget {
         validator: validator,
         decoration: InputDecoration(
           labelText: labelText,
+          suffixIcon: suffixIcon,
           prefixIcon: prefixIcon,
           labelStyle: TextStyle(color: Colors.black),
           disabledBorder: OutlineInputBorder(
