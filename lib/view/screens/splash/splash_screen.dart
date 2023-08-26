@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState(){
     super.initState();
     Future.delayed(Duration(seconds: 1),(){
-      if(CashHelper.get(key: LocalKeys.token) ==null){
+      if(CashHelper.get(key: LocalKeys.uid) ==null){
       Navigation.pushAndRemove(context, LoginScreen());}
       else {Navigation.push(context, AllTasksScreen());}
     });

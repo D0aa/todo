@@ -21,6 +21,10 @@ class AddTasksLoadingState extends TasksState{}
 class AddTasksSuccessState extends TasksState{}
 class AddTasksErrorState extends TasksState{}
 
+class AddFireTasksLoadingState extends TasksState{}
+class AddFireTasksSuccessState extends TasksState{}
+class AddFireTasksErrorState extends TasksState{}
+
 class GetImageFromGalleryLoadingState extends TasksState{}
 class GetImageFromGallerySuccessState extends TasksState{}
 class GetImageFromGalleryErrorState extends TasksState{}

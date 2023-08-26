@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,9 @@ import 'package:to_do_app/veiw_model/data/network/dio_helper.dart';
 import 'package:to_do_app/veiw_model/data/network/end_points.dart';
 import 'package:to_do_app/view/components/widget/toast_message.dart';
 
+import '../../../model/fire_model/fire_task.dart';
+import '../../../model/fire_model/fire_user.dart';
+
 class TasksCubit extends Cubit<TasksState> {
   TasksCubit() : super(TasksInitial());
 
@@ -23,6 +27,7 @@ class TasksCubit extends Cubit<TasksState> {
   TextEditingController startDateController = TextEditingController();
   TextEditingController endDataController = TextEditingController();
   String status = '';
+  FireUser? currentUser;
 
   Future<void> getAllTasks() async {
     emit(GetAllTasksLoadingState());
@@ -281,5 +286,42 @@ class TasksCubit extends Cubit<TasksState> {
       emit(DeleteTaskErrorState());
       throw error;
     });
+  }
+  Future<void> getProfile() async {
+    FirebaseFirestore.instance.collection('users').where(
+        'uid', isEqualTo: CashHelper.get(key: LocalKeys.uid)).get().then((value) {
+      for(var i in value.docs){
+        currentUser=FireUser.fromJson(i.data());
+      }
+    });
+  }
+  Future<void>addFireTask()async{
+    emit(AddFireTasksLoadingState());
+    FireTask task =FireTask(
+      userId:await CashHelper.get(key: LocalKeys.uid),
+      description: descriptionController.text,
+      title: titleController.text,
+      startDate: startDateController.text,
+      endDate: endDataController.text,
+      status: 'new',
+    );
+    await FirebaseFirestore.instance.collection('tasks').add(task.toJson()).then((value) {
+      emit(AddFireTasksSuccessState());
+      print(value.id);
+      showToast(message: 'task added successfully');
+      getAllTasks();
+      taskDashboard();
+      clearInputs();
+    }).catchError((error) {
+      print(error.toString());
+      if (error is FirebaseException) {
+        print(error.message);
+        showToast(
+            message: error.message.toString() );
+      }
+      emit(AddFireTasksErrorState());
+      throw error;
+    });
+
   }
 }

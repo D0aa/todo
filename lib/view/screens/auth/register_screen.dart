@@ -4,11 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:to_do_app/veiw_model/bloc/auth_cubit/auth_cubit.dart';
 import 'package:to_do_app/veiw_model/bloc/auth_cubit/auth_state.dart';
 import 'package:to_do_app/veiw_model/utils/app_assets.dart';
-import 'package:to_do_app/veiw_model/utils/navigation.dart';
+
 import 'package:to_do_app/view/components/widget/elevated_button_custom.dart';
 import 'package:to_do_app/view/components/widget/text_custom.dart';
 import 'package:to_do_app/view/components/widget/text_form_field_custom.dart';
-import 'package:to_do_app/view/screens/auth/login_screen.dart';
+
 
 
 class RegisterScreen extends StatelessWidget {
@@ -93,7 +93,7 @@ class RegisterScreen extends StatelessWidget {
                       ElevatedButtonCustom(
                         onPressed: () {
                           if(cubit.registerFormKey.currentState!.validate()){
-                            cubit.userRegister().then((value) => Navigator.pop(context));
+                            cubit.registerWithFirebase().then((value) => Navigator.pop(context));
                           }
                         },
                         text: 'Register',

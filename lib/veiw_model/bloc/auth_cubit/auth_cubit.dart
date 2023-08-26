@@ -1,10 +1,12 @@
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:to_do_app/model/user.dart';
+import 'package:to_do_app/model/user.dart' as model;
 import 'package:to_do_app/veiw_model/bloc/auth_cubit/auth_state.dart';
 import 'package:to_do_app/veiw_model/data/local/cash_helper.dart';
 import 'package:to_do_app/veiw_model/data/local/local_keys.dart';
@@ -26,7 +28,7 @@ class AuthCubit extends Cubit<AuthState> {
   TextEditingController changePasswordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   GlobalKey<FormState> passwordFormKey = GlobalKey<FormState>();
-  User? user;
+  model.User? user;
 
   Future<void> userLogin() async {
     emit(LoginLoadingState());
@@ -38,7 +40,7 @@ class AuthCubit extends Cubit<AuthState> {
       },
     ).then((value) {
       print(value.data);
-      user = User.fromJson(value.data['user']);
+      user = model.User.fromJson(value.data['user']);
       print(user?.name);
       showToast(message: 'Welcome ${user?.name ?? ''}');
       CashHelper.put(
@@ -53,6 +55,54 @@ class AuthCubit extends Cubit<AuthState> {
             message: error.response?.data['message'] ?? 'there is an error');
       }
       emit(LoginErrorState());
+      throw error;
+    });
+  }
+  Future<void> loginWithFireBase() async {
+    emit(LoginLoadingState());
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: loginEmailController.text,
+        password: loginPasswordEmailController.text).then((value) async {
+      print(value.user.toString());
+      await CashHelper.put(key: LocalKeys.uid, value: value.user?.uid);
+      emit(LoginSuccessState());
+    }).catchError((error){
+      print(error.toString());
+      if (error is FirebaseException) {
+        print(error.message);
+        showToast(
+            message: error.message ?? 'there is an error');
+      }
+      emit(LoginErrorState());
+      throw error;
+    });
+  }
+  Future<void> registerWithFirebase() async {
+    emit(RegisterLoadingState());
+    await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
+        email: registerEmailController.text,
+        password: registerPasswordController.text)
+        .then((value) async {
+      await FirebaseFirestore.instance.collection('users').add({
+        'name': registerNameController.text,
+        'email': registerEmailController.text,
+        'uid':value.user?.uid,
+      }).then((value2) async {
+        await CashHelper.put(key: LocalKeys.uid, value: value.user?.uid);
+        registerNameController.clear();
+        registerPasswordController.clear();
+        registerEmailController.clear();
+        showToast(message: 'Register Successfully');
+        emit(RegisterSuccessState());
+      });
+
+    }).catchError((error) {
+      if (error is FirebaseException) {
+        print(error.message);
+        showToast(message: error.message ?? 'there is an error');
+      }
+      emit(RegisterErrorState());
       throw error;
     });
   }
@@ -71,7 +121,7 @@ class AuthCubit extends Cubit<AuthState> {
       registerPasswordController.clear();
       registerEmailController.clear();
       print(value.data);
-      user = User.fromJson(value.data['user']);
+      user = model.User.fromJson(value.data['user']);
       print(user?.name);
       showToast(message: 'Welcome ${user?.name ?? ''}');
       CashHelper.put(
@@ -131,7 +181,7 @@ class AuthCubit extends Cubit<AuthState> {
         .then((value) {
           print(value.data);
           showToast(message: 'updated');
-          user = User.fromJson(value.data['0']);
+          user = model.User.fromJson(value.data['0']);
           // user?.name=value.data['0']['name'];
           // user?.profileImage=value.data['0']['profile_image'];
           CashHelper.put(key: LocalKeys.userName, value: value.data['0']['name']);

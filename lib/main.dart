@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:to_do_app/firebase_options.dart';
 import 'package:to_do_app/veiw_model/bloc/auth_cubit/auth_cubit.dart';
 import 'package:to_do_app/veiw_model/bloc/tasks_cubit/tasks_cubit.dart';
 import 'package:to_do_app/veiw_model/data/local/cash_helper.dart';
@@ -11,6 +13,9 @@ void main()async {
   WidgetsFlutterBinding.ensureInitialized();
  await CashHelper.init();
   DioHelper.init();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   // CashHelper.clearDate();
   runApp(const MyApp());
 }

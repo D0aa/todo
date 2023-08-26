@@ -170,7 +170,7 @@ class AddTaskScreen extends StatelessWidget {
                   BlocBuilder<TasksCubit, TasksState>(
                     builder: (context, state) {
                       return Visibility(
-                        visible: state is AddTasksLoadingState,
+                        visible: state is AddFireTasksLoadingState,
                           child: const LinearProgressIndicator(color: Colors.black,));
                     },
                   ),
@@ -184,7 +184,7 @@ class AddTaskScreen extends StatelessWidget {
                           .currentState!
                           .validate()) {
                         TasksCubit.get(context)
-                            .addTask()
+                            .addFireTask()
                             .then((value) => Navigator.pop(context));
                       }
                     },

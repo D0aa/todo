@@ -94,7 +94,7 @@ class LoginScreen extends StatelessWidget {
                       ElevatedButtonCustom(
                         onPressed: () {
                           if(cubit.loginFormKey.currentState!.validate()){
-                            cubit.userLogin().then((value) => Navigation.pushAndRemove(context, AllTasksScreen()));
+                            cubit.loginWithFireBase().then((value) => Navigation.pushAndRemove(context, AllTasksScreen()));
                           }
                         },
                         text: 'Login',
