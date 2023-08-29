@@ -29,8 +29,8 @@ class TasksDashboardScreen extends StatelessWidget {
               if(cubit.allTasks==0){
                 cubit.allTasks=1;
               }
-              if(state is DashboardTaskSuccessState){
-                cubit.taskDashboard();
+              if(state is DashboardFireTaskSuccessState){
+                cubit.taskFireDashboard();
               }
               // if(state is DeleteTaskSuccessState){
               //   cubit.taskDashboard();
@@ -38,12 +38,12 @@ class TasksDashboardScreen extends StatelessWidget {
               // if(state is EditTaskSuccessState){
               //   cubit.taskDashboard();
               // }
-              if (state is GetAllTasksErrorState && state.statusCode == 422) {
-                print('error in get all tasks');
-                showToast(message: 'token is expired');
-                Navigation.pushAndRemove(context, const LoginScreen());
-                CashHelper.clearDate();
-              }
+              // if (state is GetAllTasksErrorState && state.statusCode == 422) {
+              //   print('error in get all tasks');
+              //   showToast(message: 'token is expired');
+              //   Navigation.pushAndRemove(context, const LoginScreen());
+              //   CashHelper.clearDate();
+              // }
             },
             builder: (context, state) {
 

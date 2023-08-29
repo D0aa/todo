@@ -1,4 +1,5 @@
 class FireTask{
+  String? id;
   String? userId;
   String? title;
   String? description;
@@ -8,9 +9,10 @@ class FireTask{
   String? status;
 
   FireTask({this.userId, this.title, this.description, this.image,
-    this.startDate, this.endDate, this.status});
+    this.startDate, this.endDate, this.status,this.id});
 
-  FireTask.fromJson(Map<String, dynamic> json) {
+  FireTask.fromJson(Map<String, dynamic> json,{String? id}) {
+    this.id=id;
     userId = json['user_id'];
     title = json['title'];
     description = json['description'];

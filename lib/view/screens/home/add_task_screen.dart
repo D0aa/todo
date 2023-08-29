@@ -170,6 +170,16 @@ class AddTaskScreen extends StatelessWidget {
                   BlocBuilder<TasksCubit, TasksState>(
                     builder: (context, state) {
                       return Visibility(
+                          visible: state is UploadImageLoadingState,
+                          child: const LinearProgressIndicator(color: Colors.black,));
+                    },
+                  ),
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  BlocBuilder<TasksCubit, TasksState>(
+                    builder: (context, state) {
+                      return Visibility(
                         visible: state is AddFireTasksLoadingState,
                           child: const LinearProgressIndicator(color: Colors.black,));
                     },

@@ -14,12 +14,12 @@ import '../../../veiw_model/utils/constant.dart';
 import '../../components/widget/elevated_button_custom.dart';
 
 class EditTaskScreen extends StatelessWidget {
-  final int id;
+  final String id;
   const EditTaskScreen({required this.id, super.key});
 
   @override
   Widget build(BuildContext context) {
-    var cubit=TasksCubit.get(context)..getTaskDetails(id);
+    var cubit=TasksCubit.get(context)..getFireTaskDetails(id);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -31,7 +31,7 @@ class EditTaskScreen extends StatelessWidget {
     // TODO: implement listener
   },
   builder: (context, state) {
-    return cubit.currentTask == null? const Center(child: CircularProgressIndicator.adaptive()):
+    return cubit.currentFireTask == null? const Center(child: CircularProgressIndicator.adaptive()):
       SingleChildScrollView(
         child: Form(
           key: TasksCubit.get(context).taskFormKey,
@@ -221,7 +221,7 @@ class EditTaskScreen extends StatelessWidget {
                   BlocBuilder<TasksCubit, TasksState>(
                     builder: (context, state) {
                       return Visibility(
-                          visible: state is AddTasksLoadingState,
+                          visible: state is EditFireTaskLoadingState,
                           child: const LinearProgressIndicator(color: Colors.black,));
                     },
                   ),
@@ -235,7 +235,7 @@ class EditTaskScreen extends StatelessWidget {
                           .currentState!
                           .validate()) {
                         TasksCubit.get(context)
-                            .updateTask(id)
+                            .updateFireTask(id)
                             .then((value) => Navigator.pop(context));
                       }
                     },

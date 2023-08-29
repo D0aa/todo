@@ -31,27 +31,30 @@ class AllTasksScreen extends StatefulWidget {
 }
 
 class _AllTasksScreenState extends State<AllTasksScreen> {
+  final ScrollController scrollController = ScrollController();
 
-  final ScrollController scrollController=ScrollController();
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   scrollController.addListener(() {
+  //     if (scrollController.position.pixels != 0 &&
+  //         scrollController.position.atEdge &&
+  //         TasksCubit.hasMore) {
+  //       TasksCubit.get(context).getMoreTasks();
+  //     }
+  //   });
+  // }
+  //
+  // @override
+  // void dispose() {
+  //   scrollController.dispose();
+  //   super.dispose();
+  // }
 
-  @override
-  void initState() {
-    super.initState();
-    scrollController.addListener(() {
-      if(scrollController.position.pixels!=0 &&scrollController.position.atEdge && TasksCubit.hasMore){
-        TasksCubit.get(context).getMoreTasks();
-      }
-
-    });
-  }
-  @override
-  void dispose(){
-    scrollController.dispose();
-    super.dispose();
-  }
   @override
   Widget build(BuildContext context) {
-    // TasksCubit.get(context).getAllTasks();
+    TasksCubit.get(context).getAllFireTasks();
+    TasksCubit.get(context).getProfile();
     var cubit = TasksCubit.get(context);
     return Scaffold(
       drawer: BlocConsumer<AuthCubit, AuthState>(
@@ -75,8 +78,7 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
                     height: 10.h,
                   ),
                   TextCustom(
-                      text: CashHelper.get(key: LocalKeys.userName),
-                      fontSize: 22.sp),
+                      text: cubit.currentUser?.name ?? '', fontSize: 22.sp),
                   SizedBox(
                     height: 15.h,
                   ),
@@ -115,8 +117,8 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
                       iconColor: Colors.green,
                       title: const TextCustom(text: 'Logout'),
                       onTap: () {
-                        AuthCubit.get(context).logout().then(
-                            (value) => Navigation.push(context, const LoginScreen()));
+                        AuthCubit.get(context).logout().then((value) =>
+                            Navigation.push(context, const LoginScreen()));
                       },
                     ),
                   ),
@@ -265,36 +267,35 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
           ),
           IconButton(
               onPressed: () {
-                AuthCubit.get(context)
-                    .logout()
-                    .then((value) => Navigation.push(context, const LoginScreen()));
+                AuthCubit.get(context).logout().then(
+                    (value) => Navigation.push(context, const LoginScreen()));
               },
               icon: const Icon(Icons.exit_to_app_rounded)),
         ],
       ),
       body: BlocConsumer<TasksCubit, TasksState>(
         listener: (context, state) {
-          if (state is DeleteTaskLoadingState) {
-            cubit.clearTasks();
-          }
-          if (state is DeleteTaskSuccessState) {
-            cubit.getAllTasks();
-          }
-          if (state is DeleteTaskErrorState) {
-            cubit.getAllTasks();
-          }
-          if (state is GetAllTasksErrorState && state.statusCode == 422) {
-            print('error in get all tasks');
-            showToast(message: 'token is expired');
-            Navigation.pushAndRemove(context, const LoginScreen());
-            CashHelper.clearDate();
-          }
+          // if (state is DeleteFireTaskLoadingState) {
+          //   cubit.clearFireTasks();
+          // }
+          // if (state is DeleteFireTaskSuccessState) {
+          //   cubit.getAllFireTasks();
+          // }
+          // if (state is DeleteFireTaskErrorState) {
+          //   cubit.getAllFireTasks();
+          // }
+          // if (state is GetAllTasksErrorState && state.statusCode == 422) {
+          //   print('error in get all tasks');
+          //   showToast(message: 'token is expired');
+          //   Navigation.pushAndRemove(context, const LoginScreen());
+          //   CashHelper.clearDate();
+          // }
         },
         builder: (context, state) {
-          return State is GetAllTasksLoadingState
-              ? const CircularProgressIndicator.adaptive()
+          return State is GetAllFireTasksLoadingState
+              ? const CircularProgressIndicator(color: Colors.black,)
               : Visibility(
-                  visible: cubit.taskModel?.tasks?.length != 0,
+                  visible: cubit.fireTasks.isNotEmpty,
                   replacement: SizedBox(
                     width: double.infinity,
                     child: Column(
@@ -324,7 +325,7 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
                       children: [
                         Expanded(
                           child: ListView.separated(
-                            controller: scrollController,
+                              controller: scrollController,
                               padding: EdgeInsets.all(12.sp),
                               itemBuilder: (context, index) => Dismissible(
                                     key: UniqueKey(),
@@ -335,29 +336,36 @@ class _AllTasksScreenState extends State<AllTasksScreen> {
                                     ),
                                     direction: DismissDirection.endToStart,
                                     onDismissed: (direction) async {
-                                      await cubit.deleteTask(
-                                          cubit.taskModel?.tasks?[index].id ?? 0);
+                                      await cubit
+                                          .deleteFireTask(
+                                              cubit.fireTasks[index].id ?? '');
                                     },
                                     child: TaskWidget(
-                                      task: cubit.taskModel?.tasks?[index] ?? Task(),
+                                      task: cubit.fireTasks[index],
                                       onTap: () {
                                         Navigation.push(
                                             context,
                                             EditTaskScreen(
-                                                id: cubit.taskModel?.tasks?[index]
-                                                        .id ??
-                                                    0));
+                                                id: cubit.fireTasks[index].id ??
+                                                    ''));
                                       },
                                     ),
                                   ),
                               separatorBuilder: (context, index) =>
                                   SizedBox(height: 10.h),
-                              itemCount: cubit.taskModel?.tasks?.length ?? 0),
+                              itemCount: cubit.fireTasks.length ?? 0),
                         ),
-                        if(state is GetMoreTasksLoadingState)
-                        const SafeArea(child: Center(child: CircularProgressIndicator(color: Colors.black),)),
-                        if(!TasksCubit.hasMore)
-                          const SafeArea(child: Center(child: TextCustom(text: 'No more tasks to get')))
+                        if (state is GetMoreTasksLoadingState)
+                          const SafeArea(
+                              child: Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.black),
+                          )),
+                        if (!TasksCubit.hasMore)
+                          const SafeArea(
+                              child: Center(
+                                  child:
+                                      TextCustom(text: 'No more tasks to get')))
                       ],
                     ),
                   ),

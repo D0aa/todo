@@ -1,5 +1,8 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_storage/firebase_storage.dart' as storage;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -48,8 +51,26 @@ class TasksCubit extends Cubit<TasksState> {
     });
   }
 
-  int page=2;
-  static bool hasMore=true;
+  List<FireTask> fireTasks = [];
+
+  Future<void> getAllFireTasks() async {
+    emit(GetAllFireTasksLoadingState());
+    await FirebaseFirestore.instance
+        .collection('tasks')
+        .where('user_id', isEqualTo: CashHelper.get(key: LocalKeys.uid))
+        .snapshots()
+        .listen((value) {
+      fireTasks = [];
+      for (var i in value.docs) {
+        FireTask task = FireTask.fromJson(i.data(), id: i.id);
+        fireTasks.add(task);
+        emit(GetAllFireTasksSuccessState());
+      }
+    });
+  }
+
+  int page = 2;
+  static bool hasMore = true;
   TaskModel? moreTasks;
 
   Future<void> getMoreTasks() async {
@@ -62,9 +83,9 @@ class TasksCubit extends Cubit<TasksState> {
       },
     ).then((value) {
       moreTasks = TaskModel.fromJson(value.data);
-      if((moreTasks?.tasks?? []).isEmpty){
-        hasMore=false;
-      }else{
+      if ((moreTasks?.tasks ?? []).isEmpty) {
+        hasMore = false;
+      } else {
         taskModel?.tasks?.addAll(moreTasks?.tasks ?? []);
         page++;
       }
@@ -126,6 +147,7 @@ class TasksCubit extends Cubit<TasksState> {
 
 // Pick an image.
   XFile? image;
+  String imageUrl = '';
 
   Future<void> gitImageFromGallery() async {
     emit(GetImageFromGalleryLoadingState());
@@ -141,6 +163,11 @@ class TasksCubit extends Cubit<TasksState> {
         showToast(message: 'image not selected');
         GetImageFromGalleryErrorState();
       } else {
+       await uploadImage(path: 'tasks/${await CashHelper.get(key: LocalKeys.uid)}',
+            image: image ?? XFile(''),
+            onDone: (value) {
+              imageUrl=value;
+            },);
         emit(GetImageFromGallerySuccessState());
       }
       //     .then((value)
@@ -160,8 +187,62 @@ class TasksCubit extends Cubit<TasksState> {
     }
   }
 
-  void clearTasks(){
-    taskModel=null;
+  // Future<void> gitImageFromGallery() async {
+  //   emit(GetImageFromGalleryLoadingState());
+  //   var status = await Permission.photos.status;
+  //   print(status);
+  //   if (status != PermissionStatus.granted) {
+  //     showToast(message: 'you need to allow permission to photos');
+  //     await Permission.photos.request();
+  //     openAppSettings();
+  //   } else {
+  //     image = await picker.pickImage(source: ImageSource.gallery);
+  //     if (image == null) {
+  //       showToast(message: 'image not selected');
+  //       GetImageFromGalleryErrorState();
+  //     } else {
+  //       emit(GetImageFromGallerySuccessState());
+  //     }
+  //     //     .then((value)
+  //     // {
+  //     //   print(value);
+  //     //   if(value!= null){
+  //     //     print(value.name);
+  //     //     print(value.path);
+  //     //     print('image is not null');
+  //     //     emit(GetImageFromGallerySuccessState());
+  //     //   }else{
+  //     //     showToast(message: 'image not selected');
+  //     //     GetImageFromGalleryErrorState();}
+  //     // }).catchError((error){
+  //     //   emit(GetImageFromGalleryErrorState());
+  //     // });
+  //   }
+  // }
+
+  void clearTasks() {
+    taskModel = null;
+  }
+
+  // void clearFireTasks() {
+  //   fireTasks = [];
+  // }
+
+  Future<void> deleteFireTask(String id) async {
+    await FirebaseFirestore.instance
+        .collection('tasks')
+        .doc(id)
+        .delete()
+        .then((value) {
+      emit(DeleteFireTaskSuccessState());
+      getAllFireTasks();
+      showToast(message: 'task delete successfully');
+      taskFireDashboard();
+    }).catchError((error) {
+      print(error.toString());
+      emit(DeleteFireTaskErrorState());
+      throw error;
+    });
   }
 
   Future<void> deleteTask(int id) async {
@@ -217,6 +298,56 @@ class TasksCubit extends Cubit<TasksState> {
     status = '';
   }
 
+  FireTask? currentFireTask;
+
+  Future<void> getFireTaskDetails(String id) async {
+    emit(GetDetailsFireTaskLoadingState());
+    await FirebaseFirestore.instance
+        .collection('tasks')
+        .doc(id)
+        .get()
+        .then((value) {
+      currentFireTask = FireTask.fromJson(value.data() ?? {});
+      titleController.text = currentFireTask?.title ?? '';
+      descriptionController.text = currentFireTask?.description ?? '';
+      startDateController.text = currentFireTask?.startDate ?? '';
+      endDataController.text = currentFireTask?.endDate ?? '';
+      status = currentFireTask?.status ?? '';
+      emit(GetDetailsFireTaskSuccessState());
+    }).catchError((error) {
+      print(error.toString());
+      emit(GetDetailsFireTaskErrorState());
+      throw error;
+    });
+  }
+
+  Future<void> updateFireTask(String id) async {
+    emit(EditFireTaskLoadingState());
+    currentFireTask = FireTask(
+      userId: CashHelper.get(key: LocalKeys.uid),
+      title: titleController.text,
+      description: descriptionController.text,
+      startDate: startDateController.text,
+      endDate: endDataController.text,
+      status: status,
+    );
+    FirebaseFirestore.instance
+        .collection('tasks')
+        .doc(id)
+        .update(currentFireTask?.toJson() ?? {})
+        .then((value) {
+      clearInputs();
+      showToast(message: 'Task Updated Successfully');
+      emit(EditFireTaskSuccessState());
+      getAllFireTasks();
+      taskFireDashboard();
+    }).catchError((error) {
+      print(error.toString());
+      emit(EditFireTaskErrorState());
+      throw error;
+    });
+  }
+
   Future<void> updateTask(int id) async {
     emit(EditTaskLoadingState());
     FormData fromData = FormData.fromMap({
@@ -265,63 +396,132 @@ class TasksCubit extends Cubit<TasksState> {
       throw error;
     });
   }
-  int newTasks=0;
-  int allTasks=0;
-  int inProgressTasks=0;
-  int completedTasks=0;
-  int outdatedTasks=0;
+
+  int newTasks = 0;
+  int allTasks = 0;
+  int inProgressTasks = 0;
+  int completedTasks = 0;
+  int outdatedTasks = 0;
+
   Future<void> taskDashboard() async {
     emit(DashboardTaskLoadingState());
     await DioHelper.getData(
-            endPoint: EndPoints.dashboard,
-            token: CashHelper.get(key: LocalKeys.token))
+        endPoint: EndPoints.dashboard,
+        token: CashHelper.get(key: LocalKeys.token))
         .then((value) {
-          newTasks=value.data['0']['new tasks'];
-          allTasks=value.data['0']['all tasks'];
-          inProgressTasks=value.data['0']['in progress tasks'];
-          completedTasks=value.data['0']['completed tasks'];
-          outdatedTasks=value.data['0']['outdated tasks'];
+      newTasks = value.data['0']['new tasks'];
+      allTasks = value.data['0']['all tasks'];
+      inProgressTasks = value.data['0']['in progress tasks'];
+      completedTasks = value.data['0']['completed tasks'];
+      outdatedTasks = value.data['0']['outdated tasks'];
     }).catchError((error) {
       print(error.toString());
       emit(DeleteTaskErrorState());
       throw error;
     });
   }
+
+  Future<void> taskFireDashboard() async {
+    emit(DashboardFireTaskLoadingState());
+    await FirebaseFirestore.instance
+        .collection('tasks')
+        .where('user_id', isEqualTo: CashHelper.get(key: LocalKeys.uid))
+        .get()
+        .then((value) {
+      allTasks = value.docs.length;
+    });
+    await FirebaseFirestore.instance
+        .collection('tasks')
+        .where('user_id', isEqualTo: CashHelper.get(key: LocalKeys.uid))
+        .where('status', isEqualTo: 'new')
+        .get()
+        .then((value) {
+      newTasks = value.docs.length;
+    });
+    await FirebaseFirestore.instance
+        .collection('tasks')
+        .where('user_id', isEqualTo: CashHelper.get(key: LocalKeys.uid))
+        .where('status', isEqualTo: 'in_progress')
+        .get()
+        .then((value) {
+      inProgressTasks = value.docs.length;
+    });
+    await FirebaseFirestore.instance
+        .collection('tasks')
+        .where('user_id', isEqualTo: CashHelper.get(key: LocalKeys.uid))
+        .where('status', isEqualTo: 'completed')
+        .get()
+        .then((value) {
+      completedTasks = value.docs.length;
+    });
+    await FirebaseFirestore.instance
+        .collection('tasks')
+        .where('user_id', isEqualTo: CashHelper.get(key: LocalKeys.uid))
+        .where('status', isEqualTo: 'outdated')
+        .get()
+        .then((value) {
+      outdatedTasks = value.docs.length;
+    });
+    emit(DashboardFireTaskSuccessState());
+  }
+
   Future<void> getProfile() async {
-    FirebaseFirestore.instance.collection('users').where(
-        'uid', isEqualTo: CashHelper.get(key: LocalKeys.uid)).get().then((value) {
-      for(var i in value.docs){
-        currentUser=FireUser.fromJson(i.data());
+    FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: CashHelper.get(key: LocalKeys.uid))
+        .get()
+        .then((value) {
+      for (var i in value.docs) {
+        currentUser = FireUser.fromJson(i.data());
       }
     });
   }
-  Future<void>addFireTask()async{
+
+  Future<void> addFireTask() async {
     emit(AddFireTasksLoadingState());
-    FireTask task =FireTask(
-      userId:await CashHelper.get(key: LocalKeys.uid),
+    FireTask task = FireTask(
+      userId: await CashHelper.get(key: LocalKeys.uid),
       description: descriptionController.text,
       title: titleController.text,
       startDate: startDateController.text,
       endDate: endDataController.text,
+      image: imageUrl,
       status: 'new',
     );
-    await FirebaseFirestore.instance.collection('tasks').add(task.toJson()).then((value) {
+    await FirebaseFirestore.instance
+        .collection('tasks')
+        .add(task.toJson())
+        .then((value) {
       emit(AddFireTasksSuccessState());
       print(value.id);
       showToast(message: 'task added successfully');
-      getAllTasks();
-      taskDashboard();
+      getAllFireTasks();
+      taskFireDashboard();
       clearInputs();
     }).catchError((error) {
       print(error.toString());
       if (error is FirebaseException) {
         print(error.message);
-        showToast(
-            message: error.message.toString() );
+        showToast(message: error.message.toString());
       }
       emit(AddFireTasksErrorState());
       throw error;
     });
-
   }
+
+  Future<void> uploadImage(
+      {required String path, required XFile image, required Function(String)onDone}) async {
+    await storage.FirebaseStorage.instance.ref().child('$path/${image.name}').putFile(
+        File(image.path)).then((value) async {
+      await value.ref.getDownloadURL().then((value) {
+        onDone(value);
+        emit(UploadImageSuccessState());
+      });
+    }).catchError((error) {
+      print(error.toString());
+      emit(UploadImageErrorState());
+      throw error;
+    });
+  }
+
 }
